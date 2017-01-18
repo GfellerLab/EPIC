@@ -1,4 +1,16 @@
+# Hidden files automatically created by mac os or autosaved from
+#  some other program
+.DS_Store
+._*
+*~
+~$*
+
+# R-files and data/directories not to keep
 .Rproj.user
 .Rhistory
+.Rapp.history
 .RData
 .Ruserdata
+temp*.R
+inst/doc
+data-raw
