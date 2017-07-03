@@ -116,4 +116,3 @@ res6 <- EPIC(bulk=hoek_data$rawCounts, reference="BRef.tpm")
 # BRef.tpm corresponds to tpm while the bulk was given as raw counts.
 
 }
-

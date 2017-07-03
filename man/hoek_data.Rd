@@ -31,4 +31,3 @@ This dataset contains a subset of the full Hoek et al data. It contains only
 the data from the two healthy donors PBMC before influenza vaccination.
 }
 \keyword{datasets}
-

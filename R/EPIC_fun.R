@@ -247,7 +247,9 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     b_estimated <- refProfiles %*% fit$x
 
     if (nSigGenes > 2){
-      corSp.test <- stats::cor.test(b, b_estimated, method="spearman")
+      suppressWarnings(corSp.test <- stats::cor.test(b, b_estimated, method="spearman"))
+      # Use suppressWarnings to avoid the warnings that p-value isn't exact when
+      # ties are present in the data.
       corPear.test <- stats::cor.test(b, b_estimated, method="pearson")
     } else {
       # cannot compute correlations with less than 3 observations.

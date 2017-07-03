@@ -1,3 +1,10 @@
+Version 1.0.1
+------------------------------------------------------------------------
+* Removed the warnings from spearman correlation computations indicating that
+  the p-value isn't exact in the presence of ties.
+* Added mRNA_cell values for T cell subtypes.
+
+
 Version 1.0.0
 ------------------------------------------------------------------------
 * Public release of EPIC package.

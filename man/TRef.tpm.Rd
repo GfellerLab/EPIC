@@ -28,4 +28,3 @@ and non-lymphoid tissue metastases). The classification for each sample with
 respect to each cell type is the one given by Tirosh et al.
 }
 \keyword{datasets}
-

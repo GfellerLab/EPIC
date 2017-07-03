@@ -39,5 +39,5 @@ influenza vaccination or with diabetes, sepsis or multiple sclerosis.
 \code{BRef.tpm} (reference profiles based on same data as \code{BRef},
  but given in TPM counts instead of raw counts)
 }
-\keyword{datasets}
 
+\keyword{datasets}

@@ -1,7 +1,7 @@
 Package: EPIC
 Type: Package
 Title: Estimate the Proportion of Immune and Cancer cells
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: as.person(c(
   "Julien Racle <julien.racle@unil.ch> [aut, cre]",
   "David Gfeller <david.gfeller@unil.ch> [aut]"
@@ -15,7 +15,7 @@ Description: Package implementing EPIC method to estimate the proportion of
 Depends: R (>= 3.2.0)
 License: file LICENSE
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests: testthat,
     knitr,
     rmarkdown

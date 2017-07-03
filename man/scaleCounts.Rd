@@ -22,4 +22,3 @@ normFact, if not null, is used as the normalization factor instead of
  than the refProfiles).
 }
 \keyword{internal}
-
