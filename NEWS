@@ -3,6 +3,9 @@ Version 1.0.1
 * Removed the warnings from spearman correlation computations indicating that
   the p-value isn't exact in the presence of ties.
 * Added mRNA_cell values for T cell subtypes.
+* Added reference profiles including CD4 and CD8 T cells for circulating
+  immune cells (BRef_s, BRef_s.tpm) and including also CAFs and endothelial
+  cells for tumor infilatring cells (TRef_s.tpm).
 
 
 Version 1.0.0
