@@ -109,7 +109,7 @@
 #'
 #' @export
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
-                 sigGenes=NULL, minFunStr="minFun1"){
+                 sigGenes=NULL){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   if (is.null(reference)){
@@ -205,35 +205,12 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     mRNA_cell[names(mRNA_cell_sub)] <- mRNA_cell_sub
   }
 
-  minFunList <- list()
-  minFunList$minFun1 <- function(x, A, b, w){
+  minFun1 <- function(x, A, b, w){
     # Basic minimization function used to minimize the squared sum of the error
     # between the fit and observed value (A*x - b). We also give a weight, w,
     # for each gene to give more or less importance to the fit of each (can use
     # a value 1 if don't want to give any weight).
     return(sum( (w * (A %*% x - b)^2 ), na.rm = TRUE))
-  }
-  minFunList$minFun2 <- function(x, A, b, w){
-    # Similar to fun1, but to set a maximum error for each gene, equal to 5% the
-    # expression value of this gene observed in the ref profiles (so that if a
-    # gene is expressed completely differently in the sample than in the
-    # reference profiles, the fit will not compensate too much for this gene).
-    cErr <- (A %*% x - b)^2
-    cErr <- pmin(cErr, 0.05*(apply(A, MARGIN=1,FUN=max)^2))
-    return(sum( (w * cErr), na.rm = TRUE))
-  }
-  minFunList$minFun3 <- function(x, A, b, w){
-    # Similar to fun1, but to normalize by the max ref profile value for each
-    # gene so that each gene has about the same importance (depends on w),
-    # instead of optimizing mainly the most highly expressed genes.
-    cErr <- ( (A %*% x - b) / apply(A, MARGIN=1,FUN=max) )^2
-    return(sum( (w * cErr), na.rm = TRUE))
-  }
-  minFunList$minFun4 <- function(x, A, b, w){
-    # To combine the ideas from fun2 and fun3.
-    cErr <- ( (A %*% x - b) / apply(A, MARGIN=1,FUN=max) )^2
-    cErr <- pmin(cErr, 0.05)
-    return(sum( (w * cErr), na.rm = TRUE))
   }
 
   # Computing the weight to give to each gene
@@ -257,7 +234,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   # equal. We added the -1e-5 in cInitProp because the optimizer needs to have
   # the initial guess inside the admissible region and not on its boundary
 
-  minFun <- minFunList[[minFunStr]]
+  minFun <- minFun1
 
   # Estimating for each sample the proportion of the mRNA per cell type.
   tempPropPred <- lapply(1:nSamples, FUN=function(cSample){
