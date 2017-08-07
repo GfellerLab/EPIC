@@ -109,7 +109,7 @@
 #'
 #' @export
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
-                 sigGenes=NULL, minFunStr="minFun1"){
+                 sigGenes=NULL, minFunStr="minFun1", scaleRefProf=TRUE){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   if (is.null(reference)){
@@ -190,11 +190,16 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   # data renormalization.
 
   bulk <- scaleCounts(bulk, sigGenes, commonGenes)$counts
-  temp <- scaleCounts(refProfiles, sigGenes, commonGenes)
-  refProfiles <- temp$counts
-  refProfiles.var <- scaleCounts(refProfiles.var, sigGenes,
-                                 normFact=temp$normFact)$counts
-  # the refProfiles.var is normalized by the same factors as refProfiles.
+  if (scaleRefProf){
+    temp <- scaleCounts(refProfiles, sigGenes, commonGenes)
+    refProfiles <- temp$counts
+    refProfiles.var <- scaleCounts(refProfiles.var, sigGenes,
+                                   normFact=temp$normFact)$counts
+    # the refProfiles.var is normalized by the same factors as refProfiles.
+  } else {
+    refProfiles <- refProfiles[sigGenes,]
+    refProfiles.var <- refProfiles.var[sigGenes,]
+  }
 
   if (is.null(mRNA_cell))
     mRNA_cell <- EPIC::mRNA_cell_default

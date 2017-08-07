@@ -3,6 +3,10 @@ Version 1.0.2
 * Added another way to compute the minimum in the optimization, based on the
   ranges from each gene given in the refProfiles.var instead of using simple
   weights based on these.
+* Added the option scaleRefProf in EPIC (default to TRUE) to re-scale or not
+  the reference gene expression profile based on the gene in common with the
+  bulk sample. We can set it to FALSE if we rescale beforehand the ref profile
+  based on the mRNA / cell value for example.
 
 Version 1.0.1
 ------------------------------------------------------------------------
