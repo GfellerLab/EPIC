@@ -45,8 +45,10 @@
 #'          function;}
 #'        \item{\code{$refProfiles.var}}{(optional): a matrix (\code{nGenes} x
 #'        \code{nCellTypes}) of the variability of each gene expression for each
-#'        cell type (if absent, we assume an identical variability for all genes
-#'        in all cells) - it needs to have the same dimnames than refProfiles;}
+#'        cell type, which is used to define weights on each gene for the
+#'        optimization (if this is absent, we assume an identical variability
+#'        for all genes in all cells) - it needs to have the same dimnames than
+#'        refProfiles;}
 #'        }
 #'    }
 #' @param mRNA_cell (optional): A named numeric vector: tells (in arbitrary
@@ -112,6 +114,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
                  sigGenes=NULL, minFunStr="minFun1", scaleRefProf=TRUE){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
+  with_w <- TRUE
   if (is.null(reference)){
     reference <- EPIC::BRef
   } else if (is.character(reference)){
@@ -130,9 +133,10 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
            "fields 'refProfiles' and 'sigGenes' (sigGenes could also be ",
            "given as input to EPIC instead)")
     if (!("refProfiles.var" %in% refListNames)){
-      warning("'refProfiles.var' not defined; using identical variability ",
-              "for all genes and cell types")
-      reference$refProfiles.var <- 1
+      warning("'refProfiles.var' not defined; using identical weights ",
+              "for all genes")
+      reference$refProfiles.var <- 0
+      with_w <- FALSE
     }
     if ((length(reference$refProfiles.var) > 1) &&
         (!identical(dim(reference$refProfiles.var), dim(reference$refProfiles))
@@ -159,9 +163,9 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     stop("'bulk' needs to be given as a matrix or data.frame")
   if (!is.matrix(refProfiles) && !is.data.frame(refProfiles))
     stop("'reference$refProfiles' needs to be given as a matrix or data.frame")
-  if (!is.matrix(refProfiles.var) && !is.data.frame(refProfiles.var))
+  if (with_w && (!is.matrix(refProfiles.var) && !is.data.frame(refProfiles.var)))
     stop("'reference$refProfiles.var' needs to be given as a matrix or ",
-         "data.frame")
+         "data.frame when present.")
 
   # Keeping only common genes and normalizing the counts based on these common
   # genes
@@ -193,12 +197,14 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   if (scaleRefProf){
     temp <- scaleCounts(refProfiles, sigGenes, commonGenes)
     refProfiles <- temp$counts
-    refProfiles.var <- scaleCounts(refProfiles.var, sigGenes,
-                                   normFact=temp$normFact)$counts
+    if (with_w)
+      refProfiles.var <- scaleCounts(refProfiles.var, sigGenes,
+                                     normFact=temp$normFact)$counts
     # the refProfiles.var is normalized by the same factors as refProfiles.
   } else {
     refProfiles <- refProfiles[sigGenes,]
-    refProfiles.var <- refProfiles.var[sigGenes,]
+    if (with_w)
+      refProfiles.var <- refProfiles.var[sigGenes,]
   }
 
   if (is.null(mRNA_cell))
@@ -235,13 +241,16 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     return(sum(cErr, na.rm = TRUE))
   }
 
-  # Computing the weight to give to each gene
-  w <- rowSums(refProfiles / (refProfiles.var + 1e-12), na.rm=TRUE)
-  # 1e-12 to avoid divisions by 0: like this if refProfiles and refProfiles.var
-  # both are 0 for a given element, it will result in a weight of 0.
-  med_w <- stats::median(w[w>0], na.rm=TRUE)
-  w[w> 100*med_w] <- 100*med_w
-  # Set a limit for the big w to still not give too much weights to these genes
+  if (with_w){
+    # Computing the weight to give to each gene
+    w <- rowSums(refProfiles / (refProfiles.var + 1e-12), na.rm=TRUE)
+    # 1e-12 to avoid divisions by 0: like this if refProfiles and refProfiles.var
+    # both are 0 for a given element, it will result in a weight of 0.
+    med_w <- stats::median(w[w>0], na.rm=TRUE)
+    w[w> 100*med_w] <- 100*med_w
+    # Set a limit for the big w to still not give too much weights to these genes
+  } else
+    w <- 1
 
   # Defining the constraints for the fit of the proportions.
   cMin <- 0; cMax <- 1
