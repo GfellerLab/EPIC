@@ -2,6 +2,10 @@ Version 1.0.3
 ------------------------------------------------------------------------
 * Little correction in the code to make we can really do the fits without any
   refProfiles.var (to give same weight to each gene in the optimization).
+* Addition of the input "withOtherCells" (default to TRUE): when FALSE, we
+  assume the bulk is only composed of the cells with known reference profile
+  and force thus in the optimization a sum of these cells' mRNA proportions
+  to be equal to 1.
 
 Version 1.0.2
 ------------------------------------------------------------------------

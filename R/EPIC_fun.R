@@ -111,7 +111,8 @@
 #'
 #' @export
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
-                 sigGenes=NULL, minFunStr="minFun1", scaleRefProf=TRUE){
+                 sigGenes=NULL, minFunStr="minFun1", scaleRefProf=TRUE,
+                 withOtherCells=TRUE){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   with_w <- TRUE
@@ -253,7 +254,15 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     w <- 1
 
   # Defining the constraints for the fit of the proportions.
-  cMin <- 0; cMax <- 1
+  if (withOtherCells){
+    cMin <- 0
+  } else {
+    cMin <- 0.99
+    # So that when we assume no cells without known reference profile are
+    # present, we ask the sum of the mRNA proportions of known cells to be at
+    # least 0.99.
+  }
+  cMax <- 1
   ui <- rbind(diag(nRefCells), rep(1, nRefCells), rep(-1, nRefCells))
   ci <- c(rep(0,nRefCells), cMin, -cMax)
   # ui and ci define the constraints, in the form "ui %*% x - ci >= 0".
@@ -279,6 +288,10 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
             grad=NULL, ui=ui, ci=ci, A=refProfiles, b=b, A.var=refProfiles.var)
     }
     fit$x <- fit$par
+    if (!withOtherCells)
+      fit$x <- fit$x / sum(fit$x, na.rm=T)
+    # So that the sum is really equal to 1 even if the best pred was giving
+    # slightly lower values when we force the system to have only known cells.
 
     # Checking how well the estimated proportions predict the gene expression
     b_estimated <- refProfiles %*% fit$x
@@ -339,9 +352,10 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
             paste(samplesNames[fit.gof$convergeCode!=0], collapse="; "),
             "\n - check fit.gof for the convergeCode and convergeMessage")
 
+  if (withOtherCells)
+    mRNAProportions <- cbind(mRNAProportions, otherCells=1-rowSums(mRNAProportions))
   # Adding a row to the proportion matrix corresponding to the other /
   # uncharacterized / cancer cells.
-  mRNAProportions <- cbind(mRNAProportions, otherCells=1-rowSums(mRNAProportions))
 
   tInds <- match(colnames(mRNAProportions), names(mRNA_cell))
   if (anyNA(tInds)){
