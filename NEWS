@@ -1,3 +1,9 @@
+Version 1.0.2
+------------------------------------------------------------------------
+* Added another way to compute the minimum in the optimization, based on the
+  ranges from each gene given in the refProfiles.var instead of using simple
+  weights based on these.
+
 Version 1.0.1
 ------------------------------------------------------------------------
 * Removed the warnings from spearman correlation computations indicating that

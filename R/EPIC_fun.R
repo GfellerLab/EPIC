@@ -109,7 +109,7 @@
 #'
 #' @export
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
-                 sigGenes=NULL){
+                 sigGenes=NULL, minFunStr="minFun1"){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   if (is.null(reference)){
@@ -205,12 +205,29 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     mRNA_cell[names(mRNA_cell_sub)] <- mRNA_cell_sub
   }
 
-  minFun1 <- function(x, A, b, w){
+  minFunList <- list()
+  minFunList$minFun1 <- function(x, A, b, w){
     # Basic minimization function used to minimize the squared sum of the error
     # between the fit and observed value (A*x - b). We also give a weight, w,
     # for each gene to give more or less importance to the fit of each (can use
     # a value 1 if don't want to give any weight).
     return(sum( (w * (A %*% x - b)^2 ), na.rm = TRUE))
+  }
+  minFunList$minFun.range <- function(x, A, b, A.var){
+    # Other minimization function where we don't use weights but instead give
+    # also the variability on A as input and we'll compute for each gene the
+    # min / max value of the pred based on this variability to keep the smallest
+    # value. I.e. we compute a range of the values that y_pred can take for each
+    # gene based on the ref profile variability and when the y_true is within
+    # this range then we return an error of 0 for this gene and if y_true is
+    # outside of the range, we keep the "smallest error" (i.e. value most
+    # nearby of the possible range).
+    val.max <- (A + A.var) %*%x - b
+    val.min <- (A - A.var) %*%x - b
+    cErr <- rep(0, length(b))
+    outOfRange <- (sign(val.max)*sign(val.min) == 1)
+    cErr[outOfRange] <- pmin(abs(val.max[outOfRange]), abs(val.min[outOfRange]))
+    return(sum(cErr, na.rm = TRUE))
   }
 
   # Computing the weight to give to each gene
@@ -234,13 +251,19 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   # equal. We added the -1e-5 in cInitProp because the optimizer needs to have
   # the initial guess inside the admissible region and not on its boundary
 
-  minFun <- minFun1
+  minFun <- minFunList[[minFunStr]]
+  # minFun <- minFun1
 
   # Estimating for each sample the proportion of the mRNA per cell type.
   tempPropPred <- lapply(1:nSamples, FUN=function(cSample){
     b <- bulk[,cSample]
-    fit <- stats::constrOptim(theta = rep(cInitProp, nRefCells), f=minFun,
-                              grad=NULL, ui=ui, ci=ci, A=refProfiles, b=b, w=w)
+    if (minFunStr != "minFun.range"){
+      fit <- stats::constrOptim(theta = rep(cInitProp, nRefCells), f=minFun,
+                                grad=NULL, ui=ui, ci=ci, A=refProfiles, b=b, w=w)
+    } else {
+      fit <- stats::constrOptim(theta = rep(cInitProp, nRefCells), f=minFun,
+            grad=NULL, ui=ui, ci=ci, A=refProfiles, b=b, A.var=refProfiles.var)
+    }
     fit$x <- fit$par
 
     # Checking how well the estimated proportions predict the gene expression
@@ -259,16 +282,29 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     }
     regLine <- stats::lm(b_estimated ~ b)
     regLine_through0 <- stats::lm(b_estimated ~ b+0)
-    gof <- data.frame(fit$convergence, ifelse(is.null(fit$message), "", fit$message),
-                      sqrt(minFun(x=fit$x, A=refProfiles, b=b, w=w)/nSigGenes),
-                      sqrt(minFun(x=rep(0,nRefCells), A=refProfiles, b=b, w=w)/nSigGenes),
-                      # to only have sum((w*b)^2) or corresponding value based
-                      # on the minFun, in the worst case possible.
-                      corSp.test$estimate, corSp.test$p.value,
-                      corPear.test$estimate, corPear.test$p.value,
-                      regLine$coefficients[2], regLine$coefficients[1],
-                      regLine_through0$coefficients[1], sum(fit$x),
-                      stringsAsFactors=F)
+    if (minFunStr != "minFun.range"){
+      gof <- data.frame(fit$convergence, ifelse(is.null(fit$message), "", fit$message),
+                        sqrt(minFun(x=fit$x, A=refProfiles, b=b, w=w)/nSigGenes),
+                        sqrt(minFun(x=rep(0,nRefCells), A=refProfiles, b=b, w=w)/nSigGenes),
+                        # to only have sum((w*b)^2) or corresponding value based
+                        # on the minFun, in the worst case possible.
+                        corSp.test$estimate, corSp.test$p.value,
+                        corPear.test$estimate, corPear.test$p.value,
+                        regLine$coefficients[2], regLine$coefficients[1],
+                        regLine_through0$coefficients[1], sum(fit$x),
+                        stringsAsFactors=F)
+    } else {
+      gof <- data.frame(fit$convergence, ifelse(is.null(fit$message), "", fit$message),
+                        sqrt(minFun(x=fit$x, A=refProfiles, b=b, A.var=refProfiles.var)/nSigGenes),
+                        sqrt(minFun(x=rep(0,nRefCells), A=refProfiles, b=b, A.var=refProfiles.var)/nSigGenes),
+                        # to only have sum((w*b)^2) or corresponding value based
+                        # on the minFun, in the worst case possible.
+                        corSp.test$estimate, corSp.test$p.value,
+                        corPear.test$estimate, corPear.test$p.value,
+                        regLine$coefficients[2], regLine$coefficients[1],
+                        regLine_through0$coefficients[1], sum(fit$x),
+                        stringsAsFactors=F)
+    }
 
     return(list(mRNAProportions=fit$x, fit.gof=gof))
   } )
