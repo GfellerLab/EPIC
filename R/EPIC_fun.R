@@ -111,8 +111,8 @@
 #'
 #' @export
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
-                 sigGenes=NULL, minFunStr="minFun1", scaleRefProf=TRUE,
-                 withOtherCells=TRUE){
+                 sigGenes=NULL, minFunStr="minFun1", scaleExprs=TRUE,
+                 withOtherCells=TRUE, constrainedSum=TRUE){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   with_w <- TRUE
@@ -194,8 +194,8 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   # The value of 2e3 is arbitrary, but should be a respectable number for the
   # data renormalization.
 
-  bulk <- scaleCounts(bulk, sigGenes, commonGenes)$counts
-  if (scaleRefProf){
+  if (scaleExprs){
+    bulk <- scaleCounts(bulk, sigGenes, commonGenes)$counts
     temp <- scaleCounts(refProfiles, sigGenes, commonGenes)
     refProfiles <- temp$counts
     if (with_w)
@@ -203,6 +203,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
                                      normFact=temp$normFact)$counts
     # the refProfiles.var is normalized by the same factors as refProfiles.
   } else {
+    bulk <- bulk[sigGenes,]
     refProfiles <- refProfiles[sigGenes,]
     if (with_w)
       refProfiles.var <- refProfiles.var[sigGenes,]
@@ -263,12 +264,16 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     # least 0.99.
   }
   cMax <- 1
-  ui <- rbind(diag(nRefCells), rep(1, nRefCells), rep(-1, nRefCells))
-  ci <- c(rep(0,nRefCells), cMin, -cMax)
+  ui <- diag(nRefCells)
+  ci <- rep(0,nRefCells)
+  if (constrainedSum){
+    ui <- rbind(ui, rep(1, nRefCells), rep(-1, nRefCells))
+    ci <- c(ci, cMin, -cMax)
+  }
   # ui and ci define the constraints, in the form "ui %*% x - ci >= 0".
   # The first constraints are that the proportion of each cell must be
-  # positive; then we want the sum of all proportions to be bigger than
-  # cMin and this sum must also be smaller or equal to cMax.
+  # positive; then if constrainedSum is true, we want the sum of all proportions
+  # to be bigger than cMin and this sum must also be smaller or equal to cMax.
   cInitProp <- (min(1, cMax)-1e-5) / nRefCells
   # used as an initial guess for the optimized - start with all cell fractions
   # equal. We added the -1e-5 in cInitProp because the optimizer needs to have

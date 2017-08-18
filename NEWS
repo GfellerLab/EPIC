@@ -1,3 +1,16 @@
+Version 1.0.4
+------------------------------------------------------------------------
+* Changed the name "scaleRefProf" to "scaleExprs" and made this boolean makes
+  that either both bulk data and reference profile are rescaled internally (by
+  default), or that none of them is rescaled.
+* Added the option "constrainedSum" (default is TRUE). When this is FALSE, we
+  release the constrain that the sum of cells with known reference profiles
+  must be smaller than 1. Also if withOtherCells is FALSE and constrainedSum is
+  FALSE, we don't use the constraint during the optimization that the sum of all
+  the cells must also be equal to 0 (note we still rescale afterwards the
+  proportions to have a sum equal to 1 but it isn't done during the
+  optimization).
+
 Version 1.0.3
 ------------------------------------------------------------------------
 * Little correction in the code to make we can really do the fits without any
