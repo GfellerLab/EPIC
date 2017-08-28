@@ -1,3 +1,7 @@
+Version 1.0.5
+------------------------------------------------------------------------
+* Updated EPIC to remove genes from bulk that have only NA values.
+
 Version 1.0.4
 ------------------------------------------------------------------------
 * Changed the name "scaleRefProf" to "scaleExprs" and made this boolean makes

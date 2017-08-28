@@ -170,6 +170,11 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
 
   # Keeping only common genes and normalizing the counts based on these common
   # genes
+  bulk_NA <- apply(is.na(bulk), MARGIN=1, FUN=all)
+  if (any(bulk_NA)){
+    warning(sum(bulk_NA), " genes are NA in all bulk samples, removing these.")
+    bulk <- bulk[!bulk_NA,]
+  }
   bulkGenes <- rownames(bulk)
   if (anyDuplicated(bulkGenes))
     stop("There are some duplicated gene names in 'bulk'")
