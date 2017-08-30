@@ -3,12 +3,11 @@
 \docType{data}
 \name{BRef}
 \alias{BRef}
-\alias{BRef.tpm}
 \title{Reference profiles from circulating immune cells.}
 \format{A list of 3 elements: \describe{ \item{$refProfiles,
-  $refProfiles.var}{Matrices (nGenes x nRefCells) of the normalized gene
-  expression from the reference cells and the variability of this gene
-  expression for each gene and each cell type} \item{$sigGenes}{A list of 100
+  $refProfiles.var}{Matrices (nGenes x nRefCells) of the gene expression (in
+  TPM counts) from the reference cells and the variability of this gene
+  expression for each gene and each cell type} \item{$sigGenes}{A list of
   signature genes used to deconvolve the cell proportions} }}
 \source{
 \enumerate{
@@ -19,25 +18,15 @@
 }
 \usage{
 BRef
-
-BRef.tpm
 }
 \description{
 A dataset containing the reference profiles obtained from immune cell
-samples of \emph{B-}, \emph{NK-}, \emph{T-cells}, \emph{Monocytes}
-and \emph{Neutrophils} purified from PBMC or whole blood.
+samples of \emph{B cells}, \emph{CD4 T cells}, \emph{CD8 T cells},
+\emph{Monocytes}, \emph{NK cells} and \emph{Neutrophils}, purified from
+PBMC or whole blood.
 }
 \details{
 The original samples were obtained from healthy donors and donors after
 influenza vaccination or with diabetes, sepsis or multiple sclerosis.
 }
-\section{Similar datasets}{
-
- \code{BRef} (main reference profiles, using data from sources 1-3 below)
-
-
-\code{BRef.tpm} (reference profiles based on same data as \code{BRef},
- but given in TPM counts instead of raw counts)
-}
-
 \keyword{datasets}

@@ -19,26 +19,26 @@
 #' gene signature list need to be the same format (gene symbols are used in the
 #' predefined reference profiles). The full list of gene names don't need to be
 #' exactly the same between the reference and bulk samples: \emph{EPIC}
-#' will use the intersect of the genes.
+#' will use the intersection of the genes.
 #'
-#' @param bulk A matrix (\code{nGenes} x \code{nSamples}) of the raw genes
-#'    expression from each bulk sample. This matrix needs to have rownames
-#'    telling the gene names. In principle given as raw read counts, but it
-#'    could be given in tpm as well if using corresponding reference profiles
-#'    normalized in tpm as well.
+#' @param bulk A matrix (\code{nGenes} x \code{nSamples}) of the genes
+#'    expression from each bulk sample (the counts should be given in TPM
+#'    or RPKM when using the prebuilt reference profiles). This matrix needs to
+#'    have rownames telling the gene names (corresponds to the gene symbol in
+#'    the prebuilt reference profiles (e.g. CD8A, MS4A1) - no conversion of IDs
+#'    is performed at the moment).
 #' @param reference (optional): A string or a list defining the reference cells.
 #'    It can take multiple formats, either: \itemize{
 #'      \item\code{NULL}: to use the default reference profiles and genes
-#'        signature \code{\link{BRef}}.
-#'      \item a char: one of \emph{"BRef"}, \emph{"BRef.tpm"} or \emph{"TRef.tpm"}
+#'        signature \code{\link{TRef}}.
+#'      \item a char: either \emph{"BRef"} or \emph{"TRef"}
 #'        to use the reference cells and genes signature of the corresponding
-#'        datasets (see \code{\link{BRef}}, \code{\link{BRef.tpm}} and
-#'        \code{\link{TRef.tpm}}).
+#'        datasets (see \code{\link{BRef}} and \code{\link{TRef}}).
 #'      \item a list. When a list it should include: \describe{
 #'        \item{\code{$refProfiles}}{a matrix (\code{nGenes} x \code{nCellTypes})
 #'        of the reference cells genes expression (without the cancer cell type);
 #'        the rownames needs to be defined as well as the colnames giving the
-#'        names of each reference cell types;
+#'        names of each gene and reference cell types respectively;
 #'        }
 #'        \item{\code{$sigGenes}}{a character vector of the gene names to use as
 #'          signature - sigGenes can also be given as a direct input to EPIC
@@ -63,11 +63,8 @@
 #'    we would use a value of 3.5 for the "otherCells" that didn't have any
 #'    reference profile and a default value of 1 for the Tcells when computing
 #'    the cell fractions).
-#'    To note: if the data is given as raw counts, then mRNA per cell should
-#'    correspond to some weight of mRNA per cell (or to a total number of mRNA
-#'    nucleotides per cell); while if data is in tpm, then this mRNA per cell
-#'    would ideally correspond more to some number of transcripts per cell.
-#'    The default values correspond to data in raw counts.
+#'    To note: if data is in tpm, this mRNA per cell would ideally correspond
+#'    to some number of transcripts per cell.
 #' @param mRNA_cell_sub (optional): This can be given instead of \code{mRNA_cell} (or
 #'    in addition to it). It is also a named numeric vector, used to replace
 #'    only the mRNA/cell values from some cell types (or to add values for new
@@ -78,6 +75,30 @@
 #'    reference as the "reference$sigGenes" but if we give a value for this
 #'    input variable, it is these signature genes that will be used instead of
 #'    the ones given with the reference profile.
+#' @param scaleExprs (optional, default is TRUE): boolean telling if the bulk
+#'    samples and reference gene expression profiles should be rescaled based on
+#'    the list of genes in common between the them (such a rescaling is
+#'    recommanded).
+#' @param withOtherCells (optional, default is TRUE): if EPIC should allow for
+#'    an additional cell type for which no gene expression reference profile is
+#'    available or if the bulk is assumed to be composed only of the cells with
+#'    reference profiles.
+#' @param constrainedSum (optional, default is TRUE): tells if the sum of all
+#'    cell types should be constrained to be < 1. When
+#'    \code{withOtherCells=FALSE}, there is additionally a constrain the the sum
+#'    of all cell types with reference profiles must be > 0.99.
+#' @param rangeBasedOptim (optional): when this is FALSE (the default), the
+#'    least square optimization is performed as described in \cite{EPIC}
+#'    paper, which is recommanded.
+#'    When this variable is TRUE, EPIC uses the variability of each gene
+#'    from the reference profiles in another way: instead of defining weights
+#'    (based on the variability) for the fit of each gene, we define a range of
+#'    values accessible for each gene (based on the gene expression value in
+#'    the reference profile +/- the variability values). The
+#'    error that the optimization tries to minimize is by how much
+#'    the predicted gene expression is outside of this allowed range of values.
+#'
+#'
 #' @return A list of 3 matrices:\describe{
 #'  \item{\code{mRNAProportions}}{(\code{nSamples} x (\code{nCellTypes+1})) the
 #'    proportion of mRNA coming from all cell types with a ref profile + the
@@ -93,31 +114,28 @@
 #' }
 #'
 #' @examples
-#' res1 <- EPIC(hoek_data$rawCounts)
+#' res1 <- EPIC(melanoma_data$counts)
 #' res1$cellFractions
-#' res2 <- EPIC(hoek_data$rawCounts, BRef)
-#' res3 <- EPIC(bulk=hoek_data$rawCounts, reference=BRef)
-#' res4 <- EPIC(hoek_data$rawCounts, reference="BRef")
-#' res5 <- EPIC(hoek_data$rawCounts, mRNA_cell_sub=c(Bcells=1, otherCells=5))
-#' res6 <- EPIC(bulk=hoek_data$rawCounts, reference="BRef.tpm")
+#' res2 <- EPIC(melanoma_data$counts, TRef)
+#' res3 <- EPIC(bulk=melanoma_data$counts, reference=TRef)
+#' res4 <- EPIC(melanoma_data$counts, reference="TRef")
+#' res5 <- EPIC(melanoma_data$counts, mRNA_cell_sub=c(Bcells=1, otherCells=5))
 #' # Various possible ways of calling EPIC function. res 1 to 4 should
 #' # give exactly the same outputs, and the elements res1$cellFractions
 #' # should be equal to the example predictions found in
-#' # hoek_data$cellFractions.pred for these first 4 results.
+#' # melanoma_data$cellFractions.pred for these first 4 results.
 #' # The values of cellFraction for res5 will be different due to the use of
 #' # other mRNA per cell values for the B and other cells.
-#' # And res6 will also give different results and is not advised: the reference
-#' # BRef.tpm corresponds to tpm while the bulk was given as raw counts.
 #'
 #' @export
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
-                 sigGenes=NULL, minFunStr="minFun1", scaleExprs=TRUE,
-                 withOtherCells=TRUE, constrainedSum=TRUE){
+                 sigGenes=NULL, scaleExprs=TRUE, withOtherCells=TRUE,
+                 constrainedSum=TRUE, rangeBasedOptim=FALSE){
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   with_w <- TRUE
   if (is.null(reference)){
-    reference <- EPIC::BRef
+    reference <- EPIC::TRef
   } else if (is.character(reference)){
     if (reference %in% prebuiltRefNames){
       reference <- get(reference, pos="package:EPIC")
@@ -192,14 +210,13 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
          " matching common genes between bulk and reference profiles,",
          " but there should be more signature genes than reference cells")
 
-  if (length(commonGenes) < 2e3)
-    warning("there are few genes in common between the bulk samples and ",
-            "reference cells:", length(commonGenes), ", so the normalization ",
-            "might be an issue")
-  # The value of 2e3 is arbitrary, but should be a respectable number for the
-  # data renormalization.
-
   if (scaleExprs){
+    if (length(commonGenes) < 2e3)
+      warning("there are few genes in common between the bulk samples and ",
+              "reference cells:", length(commonGenes), ", so the data scaling ",
+              "might be an issue")
+    # The value of 2e3 is arbitrary, but should be a respectable number for the
+    # data renormalization.
     bulk <- scaleCounts(bulk, sigGenes, commonGenes)$counts
     temp <- scaleCounts(refProfiles, sigGenes, commonGenes)
     refProfiles <- temp$counts
@@ -223,15 +240,14 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     mRNA_cell[names(mRNA_cell_sub)] <- mRNA_cell_sub
   }
 
-  minFunList <- list()
-  minFunList$minFun1 <- function(x, A, b, w){
+  minFun <- function(x, A, b, w){
     # Basic minimization function used to minimize the squared sum of the error
     # between the fit and observed value (A*x - b). We also give a weight, w,
     # for each gene to give more or less importance to the fit of each (can use
     # a value 1 if don't want to give any weight).
     return(sum( (w * (A %*% x - b)^2 ), na.rm = TRUE))
   }
-  minFunList$minFun.range <- function(x, A, b, A.var){
+  minFun.range <- function(x, A, b, A.var){
     # Other minimization function where we don't use weights but instead give
     # also the variability on A as input and we'll compute for each gene the
     # min / max value of the pred based on this variability to keep the smallest
@@ -248,7 +264,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     return(sum(cErr, na.rm = TRUE))
   }
 
-  if (with_w){
+  if (with_w && !rangeBasedOptim){
     # Computing the weight to give to each gene
     w <- rowSums(refProfiles / (refProfiles.var + 1e-12), na.rm=TRUE)
     # 1e-12 to avoid divisions by 0: like this if refProfiles and refProfiles.var
@@ -284,17 +300,14 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   # equal. We added the -1e-5 in cInitProp because the optimizer needs to have
   # the initial guess inside the admissible region and not on its boundary
 
-  minFun <- minFunList[[minFunStr]]
-  # minFun <- minFun1
-
   # Estimating for each sample the proportion of the mRNA per cell type.
   tempPropPred <- lapply(1:nSamples, FUN=function(cSample){
     b <- bulk[,cSample]
-    if (minFunStr != "minFun.range"){
+    if (!rangeBasedOptim){
       fit <- stats::constrOptim(theta = rep(cInitProp, nRefCells), f=minFun,
                                 grad=NULL, ui=ui, ci=ci, A=refProfiles, b=b, w=w)
     } else {
-      fit <- stats::constrOptim(theta = rep(cInitProp, nRefCells), f=minFun,
+      fit <- stats::constrOptim(theta = rep(cInitProp, nRefCells), f=minFun.range,
             grad=NULL, ui=ui, ci=ci, A=refProfiles, b=b, A.var=refProfiles.var)
     }
     fit$x <- fit$par
@@ -319,29 +332,24 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     }
     regLine <- stats::lm(b_estimated ~ b)
     regLine_through0 <- stats::lm(b_estimated ~ b+0)
-    if (minFunStr != "minFun.range"){
-      gof <- data.frame(fit$convergence, ifelse(is.null(fit$message), "", fit$message),
-                        sqrt(minFun(x=fit$x, A=refProfiles, b=b, w=w)/nSigGenes),
-                        sqrt(minFun(x=rep(0,nRefCells), A=refProfiles, b=b, w=w)/nSigGenes),
-                        # to only have sum((w*b)^2) or corresponding value based
-                        # on the minFun, in the worst case possible.
-                        corSp.test$estimate, corSp.test$p.value,
-                        corPear.test$estimate, corPear.test$p.value,
-                        regLine$coefficients[2], regLine$coefficients[1],
-                        regLine_through0$coefficients[1], sum(fit$x),
-                        stringsAsFactors=F)
+    if (!rangeBasedOptim){
+      rmse_pred <- sqrt(minFun(x=fit$x, A=refProfiles, b=b, w=w)/nSigGenes)
+      rmse_0 <- sqrt(minFun(x=rep(0,nRefCells), A=refProfiles, b=b, w=w)/nSigGenes)
     } else {
-      gof <- data.frame(fit$convergence, ifelse(is.null(fit$message), "", fit$message),
-                        sqrt(minFun(x=fit$x, A=refProfiles, b=b, A.var=refProfiles.var)/nSigGenes),
-                        sqrt(minFun(x=rep(0,nRefCells), A=refProfiles, b=b, A.var=refProfiles.var)/nSigGenes),
-                        # to only have sum((w*b)^2) or corresponding value based
-                        # on the minFun, in the worst case possible.
-                        corSp.test$estimate, corSp.test$p.value,
-                        corPear.test$estimate, corPear.test$p.value,
-                        regLine$coefficients[2], regLine$coefficients[1],
-                        regLine_through0$coefficients[1], sum(fit$x),
-                        stringsAsFactors=F)
+      rmse_pred <- sqrt(minFun.range(x=fit$x, A=refProfiles, b=b,
+                                     A.var=refProfiles.var)/nSigGenes)
+      rmse_0 <- sqrt(minFun.range(x=rep(0,nRefCells), A=refProfiles, b=b,
+                                  A.var=refProfiles.var)/nSigGenes)
     }
+    gof <- data.frame(fit$convergence, ifelse(is.null(fit$message), "", fit$message),
+                      rmse_pred, rmse_0,
+                      # to only have sum((w*b)^2) or corresponding value based
+                      # on the minFun, in the worst case possible.
+                      corSp.test$estimate, corSp.test$p.value,
+                      corPear.test$estimate, corPear.test$p.value,
+                      regLine$coefficients[2], regLine$coefficients[1],
+                      regLine_through0$coefficients[1], sum(fit$x),
+                      stringsAsFactors=F)
 
     return(list(mRNAProportions=fit$x, fit.gof=gof))
   } )
@@ -358,7 +366,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   # Some matrix giving information on the goodness of the fit.
 
   if (any(fit.gof$convergeCode != 0))
-    warning("The optimization didn't converge for some samples:\n",
+    warning("The optimization didn't fully converge for some samples:\n",
             paste(samplesNames[fit.gof$convergeCode!=0], collapse="; "),
             "\n - check fit.gof for the convergeCode and convergeMessage")
 

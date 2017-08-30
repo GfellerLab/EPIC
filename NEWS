@@ -1,3 +1,10 @@
+Version 1.0.6
+------------------------------------------------------------------------
+* Updated EPIC to use the latest reference profiles and updated some default
+  values and tests for the package.
+* Updated the help files accordingly, explaining also the additional advanced
+  options available for EPIC.
+
 Version 1.0.5
 ------------------------------------------------------------------------
 * Updated EPIC to remove genes from bulk that have only NA values.
@@ -11,7 +18,7 @@ Version 1.0.4
   release the constrain that the sum of cells with known reference profiles
   must be smaller than 1. Also if withOtherCells is FALSE and constrainedSum is
   FALSE, we don't use the constraint during the optimization that the sum of all
-  the cells must also be equal to 0 (note we still rescale afterwards the
+  the cells must also be equal to 1 (note we still rescale afterwards the
   proportions to have a sum equal to 1 but it isn't done during the
   optimization).
 
@@ -40,8 +47,8 @@ Version 1.0.1
   the p-value isn't exact in the presence of ties.
 * Added mRNA_cell values for T cell subtypes.
 * Added reference profiles including CD4 and CD8 T cells for circulating
-  immune cells (BRef_s, BRef_s.tpm) and including also CAFs and endothelial
-  cells for tumor infilatring cells (TRef_s.tpm).
+  immune cells and including also CAFs and endothelial cells for tumor
+  infilatring cells.
 
 
 Version 1.0.0

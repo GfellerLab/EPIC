@@ -1,16 +1,17 @@
 Package: EPIC
 Type: Package
 Title: Estimate the Proportion of Immune and Cancer cells
-Version: 1.0.5
+Version: 1.0.6
 Authors@R: as.person(c(
   "Julien Racle <julien.racle@unil.ch> [aut, cre]",
   "David Gfeller <david.gfeller@unil.ch> [aut]"
   ))
 Description: Package implementing EPIC method to estimate the proportion of
-    immune and cancer cells from bulk gene expression data. It is based on
-    reference gene expression profiles for the main immune cell types and it
-    predicts the proportion of these cells and of the remaining "other cells"
-    that are the remaining cells (cancer, stromal, endothelial) for which no
+    immune, stromal, endothelial and cancer or other cells from bulk gene
+    expression data.
+    It is based on reference gene expression profiles for the main non-malignant
+    cell types and it predicts the proportion of these cells and of the
+    remaining "other cells" (that are mostly cancer cells) for which no
     reference profile is given.
 Depends: R (>= 3.2.0)
 License: file LICENSE

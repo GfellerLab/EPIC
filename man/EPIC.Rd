@@ -5,36 +5,39 @@
 \title{Estimate the proportion of immune and cancer cells.}
 \usage{
 EPIC(bulk, reference = NULL, mRNA_cell = NULL, mRNA_cell_sub = NULL,
-  sigGenes = NULL)
+  sigGenes = NULL, scaleExprs = TRUE, withOtherCells = TRUE,
+  constrainedSum = TRUE, rangeBasedOptim = FALSE)
 }
 \arguments{
-\item{bulk}{A matrix (\code{nGenes} x \code{nSamples}) of the raw genes
-expression from each bulk sample. This matrix needs to have rownames
-telling the gene names. In principle given as raw read counts, but it
-could be given in tpm as well if using corresponding reference profiles
-normalized in tpm as well.}
+\item{bulk}{A matrix (\code{nGenes} x \code{nSamples}) of the genes
+expression from each bulk sample (the counts should be given in TPM
+or RPKM when using the prebuilt reference profiles). This matrix needs to
+have rownames telling the gene names (corresponds to the gene symbol in
+the prebuilt reference profiles (e.g. CD8A, MS4A1) - no conversion of IDs
+is performed at the moment).}
 
 \item{reference}{(optional): A string or a list defining the reference cells.
 It can take multiple formats, either: \itemize{
   \item\code{NULL}: to use the default reference profiles and genes
-    signature \code{\link{BRef}}.
-  \item a char: one of \emph{"BRef"}, \emph{"BRef.tpm"} or \emph{"TRef.tpm"}
+    signature \code{\link{TRef}}.
+  \item a char: either \emph{"BRef"} or \emph{"TRef"}
     to use the reference cells and genes signature of the corresponding
-    datasets (see \code{\link{BRef}}, \code{\link{BRef.tpm}} and
-    \code{\link{TRef.tpm}}).
+    datasets (see \code{\link{BRef}} and \code{\link{TRef}}).
   \item a list. When a list it should include: \describe{
     \item{\code{$refProfiles}}{a matrix (\code{nGenes} x \code{nCellTypes})
     of the reference cells genes expression (without the cancer cell type);
     the rownames needs to be defined as well as the colnames giving the
-    names of each reference cell types;
+    names of each gene and reference cell types respectively;
     }
     \item{\code{$sigGenes}}{a character vector of the gene names to use as
       signature - sigGenes can also be given as a direct input to EPIC
       function;}
     \item{\code{$refProfiles.var}}{(optional): a matrix (\code{nGenes} x
     \code{nCellTypes}) of the variability of each gene expression for each
-    cell type (if absent, we assume an identical variability for all genes
-    in all cells) - it needs to have the same dimnames than refProfiles;}
+    cell type, which is used to define weights on each gene for the
+    optimization (if this is absent, we assume an identical variability
+    for all genes in all cells) - it needs to have the same dimnames than
+    refProfiles;}
     }
 }}
 
@@ -50,11 +53,8 @@ default=1), then if the refProfiles described Bcells, NKcells and Tcells,
 we would use a value of 3.5 for the "otherCells" that didn't have any
 reference profile and a default value of 1 for the Tcells when computing
 the cell fractions).
-To note: if the data is given as raw counts, then mRNA per cell should
-correspond to some weight of mRNA per cell (or to a total number of mRNA
-nucleotides per cell); while if data is in tpm, then this mRNA per cell
-would ideally correspond more to some number of transcripts per cell.
-The default values correspond to data in raw counts.}
+To note: if data is in tpm, this mRNA per cell would ideally correspond
+to some number of transcripts per cell.}
 
 \item{mRNA_cell_sub}{(optional): This can be given instead of \code{mRNA_cell} (or
 in addition to it). It is also a named numeric vector, used to replace
@@ -67,6 +67,32 @@ signature for the deconvolution. In principle this is given with the
 reference as the "reference$sigGenes" but if we give a value for this
 input variable, it is these signature genes that will be used instead of
 the ones given with the reference profile.}
+
+\item{scaleExprs}{(optional, default is TRUE): boolean telling if the bulk
+samples and reference gene expression profiles should be rescaled based on
+the list of genes in common between the them (such a rescaling is
+recommanded).}
+
+\item{withOtherCells}{(optional, default is TRUE): if EPIC should allow for
+an additional cell type for which no gene expression reference profile is
+available or if the bulk is assumed to be composed only of the cells with
+reference profiles.}
+
+\item{constrainedSum}{(optional, default is TRUE): tells if the sum of all
+cell types should be constrained to be < 1. When
+\code{withOtherCells=FALSE}, there is additionally a constrain the the sum
+of all cell types with reference profiles must be > 0.99.}
+
+\item{rangeBasedOptim}{(optional): when this is FALSE (the default), the
+least square optimization is performed as described in \cite{EPIC}
+paper, which is recommanded.
+When this variable is TRUE, EPIC uses the variability of each gene
+from the reference profiles in another way: instead of defining weights
+(based on the variability) for the fit of each gene, we define a range of
+values accessible for each gene (based on the gene expression value in
+the reference profile +/- the variability values). The
+error that the optimization tries to minimize is by how much
+the predicted gene expression is outside of this allowed range of values.}
 }
 \value{
 A list of 3 matrices:\describe{
@@ -96,23 +122,20 @@ The names of the genes in the bulk samples, the reference samples and in the
 gene signature list need to be the same format (gene symbols are used in the
 predefined reference profiles). The full list of gene names don't need to be
 exactly the same between the reference and bulk samples: \emph{EPIC}
-will use the intersect of the genes.
+will use the intersection of the genes.
 }
 \examples{
-res1 <- EPIC(hoek_data$rawCounts)
+res1 <- EPIC(melanoma_data$counts)
 res1$cellFractions
-res2 <- EPIC(hoek_data$rawCounts, BRef)
-res3 <- EPIC(bulk=hoek_data$rawCounts, reference=BRef)
-res4 <- EPIC(hoek_data$rawCounts, reference="BRef")
-res5 <- EPIC(hoek_data$rawCounts, mRNA_cell_sub=c(Bcells=1, otherCells=5))
-res6 <- EPIC(bulk=hoek_data$rawCounts, reference="BRef.tpm")
+res2 <- EPIC(melanoma_data$counts, TRef)
+res3 <- EPIC(bulk=melanoma_data$counts, reference=TRef)
+res4 <- EPIC(melanoma_data$counts, reference="TRef")
+res5 <- EPIC(melanoma_data$counts, mRNA_cell_sub=c(Bcells=1, otherCells=5))
 # Various possible ways of calling EPIC function. res 1 to 4 should
 # give exactly the same outputs, and the elements res1$cellFractions
 # should be equal to the example predictions found in
-# hoek_data$cellFractions.pred for these first 4 results.
+# melanoma_data$cellFractions.pred for these first 4 results.
 # The values of cellFraction for res5 will be different due to the use of
 # other mRNA per cell values for the B and other cells.
-# And res6 will also give different results and is not advised: the reference
-# BRef.tpm corresponds to tpm while the bulk was given as raw counts.
 
 }

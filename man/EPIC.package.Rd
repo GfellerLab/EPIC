@@ -7,9 +7,9 @@
 \title{EPIC: a package to Estimate the Proportion of Immune and Cancer cells from
  tumor gene expression data.}
 \description{
-EPIC package provides the function and immune cell reference profiles to
-estimate the proportion of immune and other cells from bulk gene expression
-data.
+EPIC package provides the function and cell reference profiles to
+estimate the proportion of immune, stromal, endothelial and cancer or other
+cells from bulk gene expression data.
 }
 \section{EPIC functions}{
 
@@ -19,14 +19,13 @@ data.
 
 \section{Included datasets}{
 
-\code{\link{BRef}}, \code{\link{BRef.tpm}}: reference profiles from
-   circulating immune cells.
+\code{\link{BRef}}: reference profiles from circulating immune cells.
 
- \code{\link{TRef.tpm}}: reference profiles from immune cells obtained
- from single cell data of tumor infiltrating cells from melanoma patients.
+ \code{\link{TRef}}: reference profiles from tumor infiltrating non-malignant
+ cells obtained from single cell data of melanoma patients.
 
-\code{\link{hoek_data}}: example dataset containing data from Hoek et al,
- 2015, PLoS One.
+\code{\link{melanoma_data}}: example dataset containing data from lymph nodes
+ from patients with metastatic melanoma.
 
 \code{\link{mRNA_cell_default}}: values of mRNA per cell for the main cell
  types.
