@@ -98,7 +98,6 @@
 #'    error that the optimization tries to minimize is by how much
 #'    the predicted gene expression is outside of this allowed range of values.
 #'
-#'
 #' @return A list of 3 matrices:\describe{
 #'  \item{\code{mRNAProportions}}{(\code{nSamples} x (\code{nCellTypes+1})) the
 #'    proportion of mRNA coming from all cell types with a ref profile + the
@@ -312,7 +311,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     }
     fit$x <- fit$par
     if (!withOtherCells)
-      fit$x <- fit$x / sum(fit$x, na.rm=T)
+      fit$x <- fit$x / sum(fit$x, na.rm=TRUE)
     # So that the sum is really equal to 1 even if the best pred was giving
     # slightly lower values when we force the system to have only known cells.
 
@@ -349,7 +348,7 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
                       corPear.test$estimate, corPear.test$p.value,
                       regLine$coefficients[2], regLine$coefficients[1],
                       regLine_through0$coefficients[1], sum(fit$x),
-                      stringsAsFactors=F)
+                      stringsAsFactors=FALSE)
 
     return(list(mRNAProportions=fit$x, fit.gof=gof))
   } )

@@ -6,12 +6,12 @@ EPIC - package
 Description
 -----------
 
-Package implementing EPIC method to estimate the proportion of immune and cancer cells from bulk gene expression data. It is based on reference gene expression profiles for the main immune cell types and it predicts the proportion of these cells and of the remaining "other cells" that are the remaining cells (cancer, stromal, endothelial) for which no reference profile is given.
+Package implementing EPIC method to estimate the proportion of immune, stromal, endothelial and cancer or other cells from bulk gene expression data. It is based on reference gene expression profiles for the main non-malignant cell types and it predicts the proportion of these cells and of the remaining "other cells" (that are mostly cancer cells) for which no reference profile is given.
 
 Usage
 -----
 
-The main function in this package is `EPIC`. It needs as input a matrix of the raw gene expression counts from the samples for which to estimate cell proportions. One can also define the reference cells to use
+The main function in this package is `EPIC`. It needs as input a matrix of the TPM (or RPKM) gene expression from the samples for which to estimate cell proportions. One can also define the reference cells to use
 
 ``` r
 out <- EPIC(bulk = bulkSamplesMatrix)
