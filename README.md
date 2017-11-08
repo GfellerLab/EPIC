@@ -1,8 +1,7 @@
+EPIC package
+================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-EPIC - package
-==============
-
 Description
 -----------
 
@@ -34,3 +33,15 @@ Installation
 install.packages("devtools")
 devtools::install_github("GfellerLab/EPIC")
 ```
+
+License
+-------
+
+EPIC can be used freely by academic groups for non-commercial purposes. The product is provided free of charge, and, therefore, on an "*as is*" basis, without warranty of any kind. Please read the file "*LICENSE*" for details.
+
+If you plan to use EPIC (version 1.1) in any for-profit application, you are required to obtain a separate license. To do so, please contact Ece Auffarth (<eauffarth@licr.org>) at the Ludwig Institute for Cancer Research Ltd.
+
+Contact information
+-------------------
+
+Julien Racle (<julien.racle@unil.ch>), and David Gfeller (<david.gfeller@unil.ch>).
