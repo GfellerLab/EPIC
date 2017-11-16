@@ -10,13 +10,20 @@
  any reference profile and the \emph{default} which is the default value used
  for cells with reference profiles but without a value specified in the
  \code{mRNA_cell_default} vector.}
+\source{
+\url{https://elifesciences.org/articles/26476}
+}
 \usage{
 mRNA_cell_default
 }
 \description{
-These values have been obtained from experiments (see \cite{EPIC} publication).
+These values have been obtained from experiments (see
+\href{https://elifesciences.org/articles/26476}{
+ \cite{Racle et al., 2017, eLife}}).
 For the other uncharacterized cells, we use a value of 0.4 as described
-in \cite{EPIC} publication. For macrophages we don't have specific values but
-assumed here it is the same value as for monocytes.
+in \href{https://elifesciences.org/articles/26476}{
+ \cite{Racle et al., 2017, eLife}}.
+For macrophages we don't have specific values but assumed here it is the
+same value as for monocytes.
 }
 \keyword{datasets}

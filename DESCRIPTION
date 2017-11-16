@@ -1,7 +1,7 @@
 Package: EPIC
 Type: Package
 Title: Estimate the Proportion of Immune and Cancer cells
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: as.person(c(
   "Julien Racle <julien.racle@unil.ch> [aut, cre]",
   "David Gfeller <david.gfeller@unil.ch> [aut]"

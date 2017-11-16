@@ -21,6 +21,9 @@ cell types and it predicts the proportion of these cells and of the remaining
 "other cells" (that are mostly cancer cells) for which no reference profile is
 given.
 
+This method is described in the publication from *Racle et al., 2017* available
+at <https://elifesciences.org/articles/26476>.
+
 ## Usage
 The main function in this package is `EPIC`. It needs as input a matrix of the
 TPM (or RPKM) gene expression from the samples for which to estimate cell

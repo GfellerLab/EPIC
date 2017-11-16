@@ -31,9 +31,17 @@ cells from bulk gene expression data.
  types.
 }
 
+\section{References}{
+
+Racle, J., Jonge, K. de, Baumgaertner, P., Speiser, D.E., and
+Gfeller, D. (2017). Simultaneous enumeration of cancer and immune cell
+types from bulk tumor gene expression data. \emph{eLife Sciences, 6}, e26476
+(\url{https://elifesciences.org/articles/26476})
+}
+
 \section{Authors}{
 
-Julien Racle <\email{julien.racle@unil.ch}> and David Gfeller <\email{
- david.gfeller@unil.ch}>.
+Julien Racle <\email{julien.racle@unil.ch}> and David Gfeller
+<\email{david.gfeller@unil.ch}>.
 }
 

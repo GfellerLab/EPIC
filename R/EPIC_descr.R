@@ -21,9 +21,15 @@
 #' \code{\link{mRNA_cell_default}}: values of mRNA per cell for the main cell
 #'  types.
 #'
+#' @section References:
+#' Racle, J., Jonge, K. de, Baumgaertner, P., Speiser, D.E., and
+#' Gfeller, D. (2017). Simultaneous enumeration of cancer and immune cell
+#' types from bulk tumor gene expression data. \emph{eLife Sciences, 6}, e26476
+#' (\url{https://elifesciences.org/articles/26476})
+#'
 #' @section Authors:
-#' Julien Racle <\email{julien.racle@unil.ch}> and David Gfeller <\email{
-#'  david.gfeller@unil.ch}>.
+#' Julien Racle <\email{julien.racle@unil.ch}> and David Gfeller
+#' <\email{david.gfeller@unil.ch}>.
 #'
 #' @docType package
 #' @name EPIC.package
@@ -63,13 +69,15 @@ NULL
 #' \emph{endothelial cells}, \emph{Macrophages} and \emph{NK cells}.
 #'
 #' These were obtained from single-cell RNA-seq data from 9 donors from
-#' the publication of \cite{Tirosh et al., 2016, Science}. The samples
+#' the publication of \href{http://science.sciencemag.org/content/352/6282/189.full}{
+#' \cite{Tirosh et al., 2016, Science}}. The samples
 #' come from melanoma tumors (extracted from primary tumors and non-lymphoid
 #' tissue metastases). The classification for each sample with
 #' respect to each cell type is the one given by Tirosh et al., except for
 #' the CD4 T cells and CD8 T cells, that were identified from the T cells based
-#' on the expression of CD4, CD8A and CD8B as described in \cite{EPIC}
-#' publication.
+#' on the expression of CD4, CD8A and CD8B as described in
+#' \href{https://elifesciences.org/articles/26476}{
+#'  \cite{Racle et al., 2017, eLife}}.
 #'
 #' @format A list of 3 elements: \describe{ \item{$refProfiles,
 #'   $refProfiles.var}{Matrices (nGenes x nRefCells) of the gene expression (in
@@ -82,10 +90,14 @@ NULL
 
 #' Values of mRNA / cell for the main cell types.
 #'
-#' These values have been obtained from experiments (see \cite{EPIC} publication).
+#' These values have been obtained from experiments (see
+#' \href{https://elifesciences.org/articles/26476}{
+#'  \cite{Racle et al., 2017, eLife}}).
 #' For the other uncharacterized cells, we use a value of 0.4 as described
-#' in \cite{EPIC} publication. For macrophages we don't have specific values but
-#' assumed here it is the same value as for monocytes.
+#' in \href{https://elifesciences.org/articles/26476}{
+#'  \cite{Racle et al., 2017, eLife}}.
+#' For macrophages we don't have specific values but assumed here it is the
+#' same value as for monocytes.
 #'
 #' @format A named numeric vector of the relative amount of mRNA per cell type.
 #'  There are two additional "special cell types": the \emph{otherCells} which
@@ -93,14 +105,17 @@ NULL
 #'  any reference profile and the \emph{default} which is the default value used
 #'  for cells with reference profiles but without a value specified in the
 #'  \code{mRNA_cell_default} vector.
+#'
+#' @source \url{https://elifesciences.org/articles/26476}
 "mRNA_cell_default"
 
 #' Example dataset containing data from lymph nodes from patients with
 #' metastatic melanoma.
 #'
-#' This is the dataset obtained for \cite{EPIC} publication. It contains the
-#' gene expression from lymph node samples from four patients with melanoma, and
-#' it contains also the proportions of the main immune cell types and of
+#' This is the dataset measured in \href{https://elifesciences.org/articles/26476}{
+#'  \cite{Racle et al., 2017, eLife}}. It contains
+#' the gene expression from lymph node samples from four patients with melanoma,
+#' and it contains also the proportions of the main immune cell types and of
 #' melanoma cells, as measured by FACS.
 #'
 #' @format This is a list of 3 elements: \describe{
@@ -118,9 +133,6 @@ NULL
 #'    the reference profiles \code{TRef}.}
 #' }
 #'
-#' @source The description of this data can be found here:
-#'  \href{http://www.biorxiv.org/content/early/2017/03/17/117788}{link to paper}
-#'  and \href{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE93722}{link
-#'  to data}.
+#' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE93722}
 "melanoma_data"
 

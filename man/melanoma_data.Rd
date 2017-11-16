@@ -20,18 +20,16 @@ metastatic melanoma.}
    the reference profiles \code{TRef}.}
 }}
 \source{
-The description of this data can be found here:
- \href{http://www.biorxiv.org/content/early/2017/03/17/117788}{link to paper}
- and \href{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE93722}{link
- to data}.
+\url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE93722}
 }
 \usage{
 melanoma_data
 }
 \description{
-This is the dataset obtained for \cite{EPIC} publication. It contains the
-gene expression from lymph node samples from four patients with melanoma, and
-it contains also the proportions of the main immune cell types and of
+This is the dataset measured in \href{https://elifesciences.org/articles/26476}{
+ \cite{Racle et al., 2017, eLife}}. It contains
+the gene expression from lymph node samples from four patients with melanoma,
+and it contains also the proportions of the main immune cell types and of
 melanoma cells, as measured by FACS.
 }
 \keyword{datasets}

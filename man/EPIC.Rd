@@ -84,8 +84,9 @@ cell types should be constrained to be < 1. When
 of all cell types with reference profiles must be > 0.99.}
 
 \item{rangeBasedOptim}{(optional): when this is FALSE (the default), the
-least square optimization is performed as described in \cite{EPIC}
-paper, which is recommanded.
+least square optimization is performed as described in
+\href{https://elifesciences.org/articles/26476}{
+ \cite{Racle et al., 2017, eLife}}, which is recommanded.
 When this variable is TRUE, EPIC uses the variability of each gene
 from the reference profiles in another way: instead of defining weights
 (based on the variability) for the fit of each gene, we define a range of

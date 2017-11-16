@@ -24,12 +24,14 @@ tumor infiltrating non-malignant cell types: \emph{B cells},
 }
 \details{
 These were obtained from single-cell RNA-seq data from 9 donors from
-the publication of \cite{Tirosh et al., 2016, Science}. The samples
+the publication of \href{http://science.sciencemag.org/content/352/6282/189.full}{
+\cite{Tirosh et al., 2016, Science}}. The samples
 come from melanoma tumors (extracted from primary tumors and non-lymphoid
 tissue metastases). The classification for each sample with
 respect to each cell type is the one given by Tirosh et al., except for
 the CD4 T cells and CD8 T cells, that were identified from the T cells based
-on the expression of CD4, CD8A and CD8B as described in \cite{EPIC}
-publication.
+on the expression of CD4, CD8A and CD8B as described in
+\href{https://elifesciences.org/articles/26476}{
+ \cite{Racle et al., 2017, eLife}}.
 }
 \keyword{datasets}
