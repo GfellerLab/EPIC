@@ -45,6 +45,10 @@ devtools::install_github("GfellerLab/EPIC")
 ```
 
 
+## Python wrapper
+A pyhton wrapper has been written by Stephen C. Van Nostrand von MIT and is
+available at <https://github.com/scvannost/epicpy>.
+
 ## License
 EPIC can be used freely by academic groups for non-commercial purposes. The
 product is provided free of charge, and, therefore, on an "*as is*" basis,
