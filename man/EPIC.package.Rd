@@ -11,6 +11,10 @@ EPIC package provides the function and cell reference profiles to
 estimate the proportion of immune, stromal, endothelial and cancer or other
 cells from bulk gene expression data.
 }
+\details{
+See the package \link[=../doc/info.html]{vignette} and function definitions
+below.
+}
 \section{EPIC functions}{
 
 \code{\link{EPIC}} is the main function to call to estimate the

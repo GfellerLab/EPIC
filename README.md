@@ -15,6 +15,7 @@ Usage
 The main function in this package is `EPIC`. It needs as input a matrix of the TPM (or RPKM) gene expression from the samples for which to estimate cell proportions. One can also define the reference cells to use
 
 ``` r
+# library(EPIC) ## If the package isn't loaded (or use EPIC::EPIC and so on).
 out <- EPIC(bulk = bulkSamplesMatrix)
 out <- EPIC(bulk = bulkSamplesMatrix, reference = referenceCellsList)
 ```
@@ -28,13 +29,25 @@ out <- EPIC(bulk = bulkSamplesMatrix, reference = referenceCellsList, mRNA_cell 
 out <- EPIC(bulk = bulkSamplesMatrix, reference = referenceCellsList, mRNA_cell_sub = mRNA_cell_sub_vector)
 ```
 
+Various other options are available and are well documented in the help pages from EPIC:
+
+``` r
+?EPIC::EPIC
+?EPIC::EPIC.package
+```
+
 Installation
 ------------
 
 ``` r
 install.packages("devtools")
-devtools::install_github("GfellerLab/EPIC")
+devtools::install_github("GfellerLab/EPIC", build_vignettes=TRUE)
 ```
+
+Python wrapper
+--------------
+
+A pyhton wrapper has been written by Stephen C. Van Nostrand von MIT and is available at <https://github.com/scvannost/epicpy>.
 
 License
 -------
