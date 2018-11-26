@@ -26,7 +26,10 @@
 #'    or RPKM when using the prebuilt reference profiles). This matrix needs to
 #'    have rownames telling the gene names (corresponds to the gene symbol in
 #'    the prebuilt reference profiles (e.g. CD8A, MS4A1) - no conversion of IDs
-#'    is performed at the moment).
+#'    is performed at the moment). Duplicated gene names are not allowed in the
+#'    bulk. It is advised to keep all genes in the bulk instead of a subset of
+#'    signature genes (except if \code{scaleExprs = FALSE} in which case it
+#'    doesn't make any difference).
 #' @param reference (optional): A string or a list defining the reference cells.
 #'    It can take multiple formats, either: \itemize{
 #'      \item\code{NULL}: to use the default reference profiles and genes
@@ -38,7 +41,9 @@
 #'        \item{\code{$refProfiles}}{a matrix (\code{nGenes} x \code{nCellTypes})
 #'        of the reference cells genes expression (without the cancer cell type);
 #'        the rownames needs to be defined as well as the colnames giving the
-#'        names of each gene and reference cell types respectively;
+#'        names of each gene and reference cell types respectively. Duplicated
+#'        gene names are not allowed. It is advised to keep all genes in
+#'        this \code{refProfiles} matrix instead of a subset of signature genes;
 #'        }
 #'        \item{\code{$sigGenes}}{a character vector of the gene names to use as
 #'          signature - sigGenes can also be given as a direct input to EPIC
