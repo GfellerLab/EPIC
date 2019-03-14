@@ -19,15 +19,18 @@
 #' gene signature list need to be the same format (gene symbols are used in the
 #' predefined reference profiles). The full list of gene names don't need to be
 #' exactly the same between the reference and bulk samples: \emph{EPIC}
-#' will use the intersection of the genes.
+#' will use the intersection of the genes. In case of duplicate gene names,
+#' \emph{EPIC} will use the median value per duplicate - if you want to consider
+#' these cases differently, you can remove the duplicates before calling
+#' \emph{EPIC}.
 #'
 #' @param bulk A matrix (\code{nGenes} x \code{nSamples}) of the genes
-#'    expression from each bulk sample (the counts should be given in TPM
-#'    or RPKM when using the prebuilt reference profiles). This matrix needs to
-#'    have rownames telling the gene names (corresponds to the gene symbol in
-#'    the prebuilt reference profiles (e.g. CD8A, MS4A1) - no conversion of IDs
-#'    is performed at the moment). Duplicated gene names are not allowed in the
-#'    bulk. It is advised to keep all genes in the bulk instead of a subset of
+#'    expression from each bulk sample (the counts should be given in TPM,
+#'    RPKM or FPKM when using the prebuilt reference profiles). This matrix
+#'    needs to have rownames telling the gene names (corresponds to the gene
+#'    symbol in the prebuilt reference profiles (e.g. CD8A, MS4A1) - no
+#'    conversion of IDs is performed at the moment).
+#'    It is advised to keep all genes in the bulk instead of a subset of
 #'    signature genes (except if \code{scaleExprs = FALSE} in which case it
 #'    doesn't make any difference).
 #' @param reference (optional): A string or a list defining the reference cells.
@@ -39,11 +42,13 @@
 #'        datasets (see \code{\link{BRef}} and \code{\link{TRef}}).
 #'      \item a list. When a list it should include: \describe{
 #'        \item{\code{$refProfiles}}{a matrix (\code{nGenes} x \code{nCellTypes})
-#'        of the reference cells genes expression (without the cancer cell type);
+#'        of the reference cells genes expression (don't include a column of
+#'        the 'other cells' (representing usually the cancer cells for which
+#'        such a profile is usually not conserved between samples);
 #'        the rownames needs to be defined as well as the colnames giving the
-#'        names of each gene and reference cell types respectively. Duplicated
-#'        gene names are not allowed. It is advised to keep all genes in
-#'        this \code{refProfiles} matrix instead of a subset of signature genes;
+#'        names of each gene and reference cell types respectively.
+#'        It is advised to keep all genes in this \code{refProfiles} matrix
+#'        instead of a subset of signature genes;
 #'        }
 #'        \item{\code{$sigGenes}}{a character vector of the gene names to use as
 #'          signature - sigGenes can also be given as a direct input to EPIC
@@ -136,6 +141,10 @@
 EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
                  sigGenes=NULL, scaleExprs=TRUE, withOtherCells=TRUE,
                  constrainedSum=TRUE, rangeBasedOptim=FALSE){
+  # Checking the correct format of the bulk sample input
+  if (!is.matrix(bulk) && !is.data.frame(bulk))
+    stop("'bulk' needs to be given as a matrix or data.frame")
+
   # First get the value of the reference profiles depending on the input
   # 'reference'.
   with_w <- TRUE
@@ -156,24 +165,35 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
       stop("Reference, when given as a list needs to contain at least the ",
            "fields 'refProfiles' and 'sigGenes' (sigGenes could also be ",
            "given as input to EPIC instead)")
+    if (!is.matrix(reference$refProfiles) && !is.data.frame(reference$refProfiles))
+      stop("'reference$refProfiles' needs to be given as a matrix or data.frame")
     if (!("refProfiles.var" %in% refListNames)){
       warning("'refProfiles.var' not defined; using identical weights ",
               "for all genes")
-      reference$refProfiles.var <- 0
       with_w <- FALSE
-    }
-    if ((length(reference$refProfiles.var) > 1) &&
-        (!identical(dim(reference$refProfiles.var), dim(reference$refProfiles))
+    } else if (!is.matrix(reference$refProfiles.var) &&
+          !is.data.frame(reference$refProfiles.var)){
+      stop("'reference$refProfiles.var' needs to be given as a matrix or ",
+        "data.frame when present.")
+    } else if (!identical(dim(reference$refProfiles.var), dim(reference$refProfiles))
          || !identical(dimnames(reference$refProfiles.var),
-                       dimnames(reference$refProfiles))))
+                       dimnames(reference$refProfiles)))
       stop("The dimensions and dimnames of 'reference$refProfiles' and ",
            "'reference$refProfiles.var' need to be the same")
   } else {
     stop("Unknown format for 'reference'")
   }
 
-  refProfiles <- reference$refProfiles
-  refProfiles.var <- reference$refProfiles.var
+  bulk <- merge_duplicates(bulk, in_type="bulk samples")
+  refProfiles <- merge_duplicates(reference$refProfiles,
+    in_type="reference profiles")
+  if (with_w){
+    refProfiles.var <- merge_duplicates(reference$refProfiles.var, warn=F)
+    # Don't warn here as we're already warning for refProfile and they had same
+    # dim names.
+  } else {
+    refProfiles.var <- 0
+  }
 
   nSamples <- NCOL(bulk); samplesNames <- colnames(bulk)
   if (is.null(samplesNames)){
@@ -182,14 +202,6 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   }
   nRefCells <- NCOL(refProfiles); refCellsNames <- colnames(refProfiles)
 
-  # Checking the correct format of the input variables
-  if (!is.matrix(bulk) && !is.data.frame(bulk))
-    stop("'bulk' needs to be given as a matrix or data.frame")
-  if (!is.matrix(refProfiles) && !is.data.frame(refProfiles))
-    stop("'reference$refProfiles' needs to be given as a matrix or data.frame")
-  if (with_w && (!is.matrix(refProfiles.var) && !is.data.frame(refProfiles.var)))
-    stop("'reference$refProfiles.var' needs to be given as a matrix or ",
-         "data.frame when present.")
 
   # Keeping only common genes and normalizing the counts based on these common
   # genes
@@ -199,15 +211,11 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
     bulk <- bulk[!bulk_NA,]
   }
   bulkGenes <- rownames(bulk)
-  if (anyDuplicated(bulkGenes))
-    stop("There are some duplicated gene names in 'bulk'")
   refGenes <- rownames(refProfiles)
-  if (anyDuplicated(refGenes))
-    stop("There are some duplicated gene names in 'refGenes'")
   commonGenes <- intersect(bulkGenes, refGenes)
 
   if (is.null(sigGenes))
-    sigGenes <- reference$sigGenes
+    sigGenes <- unique(reference$sigGenes) # Keep only once in case of duplicates
   sigGenes <- sigGenes[sigGenes %in% commonGenes]
   nSigGenes <- length(sigGenes)
   if (nSigGenes < nRefCells)
@@ -440,3 +448,32 @@ scaleCounts <- function(counts, sigGenes=NULL, renormGenes=NULL, normFact=NULL){
   return(list(counts=counts, normFact=normFact))
 }
 
+#' Merging the duplicates from the input matrix.
+#'
+#' In case there are some duplicate rownames in the input matrix (\emph{mat}),
+#' this function will return a similar matrix with unique rownames and the
+#' duplicate cases will be merged together based on the median values. When
+#' \emph{warn} is true a warning message will be written in case there are
+#' duplicates, this warning message will include the \emph{in_type} string to
+#' indicate the current type of the input matrix.
+#'
+#' @keywords internal
+merge_duplicates <- function(mat, warn=TRUE, in_type=NULL){
+  dupl <- duplicated(rownames(mat))
+  if (sum(dupl) > 0){
+    dupl_genes <- unique(rownames(mat)[dupl])
+    if (warn){
+      warning("There are ", length(dupl_genes), " duplicated gene names",
+        ifelse(!is.null(in_type), paste(" in the", in_type), ""),
+        ". We'll use the median value for each of these cases.")
+    }
+    mat_dupl <- mat[rownames(mat) %in% dupl_genes,,drop=F]
+    mat_dupl_names <- rownames(mat_dupl)
+    mat <- mat[!dupl,,drop=F]
+    # First put the dupl cases in a separate matrix and keep only the unique
+    # gene names in the mat matrix.
+    mat[dupl_genes,] <- sapply(dupl_genes, FUN=function(cgene)
+      apply(mat_dupl[mat_dupl_names == cgene,,drop=F], MARGIN=2, FUN=median))
+  }
+  return(mat)
+}

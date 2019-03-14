@@ -9,6 +9,8 @@ Package implementing EPIC method to estimate the proportion of immune, stromal, 
 
 This method is described in the publication from *Racle et al., 2017* available at <https://elifesciences.org/articles/26476>.
 
+EPIC is also available as a web application: <http://epic.gfellerlab.org>.
+
 Usage
 -----
 
@@ -44,10 +46,15 @@ install.packages("devtools")
 devtools::install_github("GfellerLab/EPIC", build_vignettes=TRUE)
 ```
 
+Web application
+---------------
+
+EPIC is also available as a web application: <http://epic.gfellerlab.org>.
+
 Python wrapper
 --------------
 
-A pyhton wrapper has been written by Stephen C. Van Nostrand von MIT and is available at <https://github.com/scvannost/epicpy>.
+A pyhton wrapper has been written by Stephen C. Van Nostrand from MIT and is available at <https://github.com/scvannost/epicpy>.
 
 License
 -------

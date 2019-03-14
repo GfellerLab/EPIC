@@ -10,12 +10,12 @@ EPIC(bulk, reference = NULL, mRNA_cell = NULL, mRNA_cell_sub = NULL,
 }
 \arguments{
 \item{bulk}{A matrix (\code{nGenes} x \code{nSamples}) of the genes
-expression from each bulk sample (the counts should be given in TPM
-or RPKM when using the prebuilt reference profiles). This matrix needs to
-have rownames telling the gene names (corresponds to the gene symbol in
-the prebuilt reference profiles (e.g. CD8A, MS4A1) - no conversion of IDs
-is performed at the moment). Duplicated gene names are not allowed in the
-bulk. It is advised to keep all genes in the bulk instead of a subset of
+expression from each bulk sample (the counts should be given in TPM,
+RPKM or FPKM when using the prebuilt reference profiles). This matrix
+needs to have rownames telling the gene names (corresponds to the gene
+symbol in the prebuilt reference profiles (e.g. CD8A, MS4A1) - no
+conversion of IDs is performed at the moment).
+It is advised to keep all genes in the bulk instead of a subset of
 signature genes (except if \code{scaleExprs = FALSE} in which case it
 doesn't make any difference).}
 
@@ -28,11 +28,13 @@ It can take multiple formats, either: \itemize{
     datasets (see \code{\link{BRef}} and \code{\link{TRef}}).
   \item a list. When a list it should include: \describe{
     \item{\code{$refProfiles}}{a matrix (\code{nGenes} x \code{nCellTypes})
-    of the reference cells genes expression (without the cancer cell type);
+    of the reference cells genes expression (don't include a column of
+    the 'other cells' (representing usually the cancer cells for which
+    such a profile is usually not conserved between samples);
     the rownames needs to be defined as well as the colnames giving the
-    names of each gene and reference cell types respectively. Duplicated
-    gene names are not allowed. It is advised to keep all genes in
-    this \code{refProfiles} matrix instead of a subset of signature genes;
+    names of each gene and reference cell types respectively.
+    It is advised to keep all genes in this \code{refProfiles} matrix
+    instead of a subset of signature genes;
     }
     \item{\code{$sigGenes}}{a character vector of the gene names to use as
       signature - sigGenes can also be given as a direct input to EPIC
@@ -128,7 +130,10 @@ The names of the genes in the bulk samples, the reference samples and in the
 gene signature list need to be the same format (gene symbols are used in the
 predefined reference profiles). The full list of gene names don't need to be
 exactly the same between the reference and bulk samples: \emph{EPIC}
-will use the intersection of the genes.
+will use the intersection of the genes. In case of duplicate gene names,
+\emph{EPIC} will use the median value per duplicate - if you want to consider
+these cases differently, you can remove the duplicates before calling
+\emph{EPIC}.
 }
 \examples{
 res1 <- EPIC(melanoma_data$counts)
