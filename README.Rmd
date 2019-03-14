@@ -99,12 +99,35 @@ epithelial cells for example.
 Please make sure that your bulk data is in the form of a matrix (and also
 your reference gene expression profiles if using custom ones).
 
+##### What is the meaning of the warning message telling that some mRNA_cell values are unknown?
+* As described in our manuscript, EPIC first estimates the proportion of mRNA
+per cell type in the bulk and then it uses the fact that some cell types have
+more mRNA copies per cell than other to normalize this and obtain an estimate of
+the proportion of cells instead of mRNA (EPIC function returns both information
+if you need the one or the other). For this normalization we had either measured
+the amount of mRNA per cell or found it in the literature (fig. 1 – fig.
+supplement 2 of our paper). However we don’t currently have such values for the
+endothelial cells and CAFs. Therefore for these two cell types, we use an average
+value, which might not reflect their true value and this is the reason why we
+output this message. If you have some values for these mRNA/cell abundances, you
+can also add them into EPIC, with help of the parameter "*mRNA_cell*" or
+“*mRNA_cell_sub*” (and that would be great to share these values).
+
+    If the mRNA proportions of these cell types are low, then even if you don't
+correct the results with their true mRNA/cell abundances, it would not really
+have a big impact on the results. On the other side, if there are many of these
+cells in your bulk sample, the results might be a little bit biased, but the
+effect should be similar for all samples and thus not have a too big importance
+(maybe you wouldn’t be fully able to tell if there are more CAFs than Tcells for
+example, but you should still have a good estimate of which sample has more CAFs
+(or Tcells) than which other sample for example).
+
 ##### I receive a warning message that "*the optimization didn't fully converge for some samples*". What does it mean?
 * When estimating the cell proportions EPIC performs a least square regression between the observed expression of the signature genes and the expression of these genes predicted based on the estimated proportions and gene expression reference profiles of the various cell types.
 
     When such a warning message appears, it means that the optimization didn’t manage to fully converge for this regression, for some of the samples. You can then check the "*fit.gof\$convergeCode*" (and possibly also "*fit.gof\$convergeMessage*") that is outputted by EPIC alongside the cell proportions. This will tell you which samples had issue with the convergence (a value of 0 means it converged ok, while other values are errors/warnings, their meaning can be found in the help of "*optim*" (or "*constrOptim*") function from R (from "*stats*" package) which is used during the optimization and we simply forward the message it returns).
 
-    The error code that usually comes is a "1" which means that the maximum number of iterations has been reached in the optimization. This could mean there is an issue with the bulk gene expression data that maybe don’t completely follow the assumption of equation (1) from our manuscript. In practice, I’ve observed that even when there was such an error message the proportions were predicted well, it is maybe that the optimization just wants to be *too precise*, or maybe few of the signature genes didn’t match well but the rest of signature genes could be used to have a good estimate of the proportions.
+    The error code that usually comes is a "1" which means that the maximum number of iterations has been reached in the optimization. This could mean there is an issue with the bulk gene expression data that maybe don’t completely follow the assumption of equation (1) from our manuscript. From our experience, it seems in practice that even when there was such a warning message the proportions were predicted well, it is maybe that the optimization just wants to be *too precise*, or maybe few of the signature genes didn’t match well but the rest of signature genes could be used to have a good estimate of the proportions.
 
     If you have some samples that seem to have strange results, it could however be useful to check that the issue is not that these samples didn’t converge well. To
 be more conservative you could also remove all the samples that didn't converge
