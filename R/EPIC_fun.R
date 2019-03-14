@@ -472,8 +472,8 @@ merge_duplicates <- function(mat, warn=TRUE, in_type=NULL){
     mat <- mat[!dupl,,drop=F]
     # First put the dupl cases in a separate matrix and keep only the unique
     # gene names in the mat matrix.
-    mat[dupl_genes,] <- sapply(dupl_genes, FUN=function(cgene)
-      apply(mat_dupl[mat_dupl_names == cgene,,drop=F], MARGIN=2, FUN=median))
+    mat[dupl_genes,] <- t(sapply(dupl_genes, FUN=function(cgene)
+      apply(mat_dupl[mat_dupl_names == cgene,,drop=F], MARGIN=2, FUN=median)))
   }
   return(mat)
 }
