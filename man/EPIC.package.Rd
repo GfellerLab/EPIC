@@ -3,7 +3,6 @@
 \docType{package}
 \name{EPIC.package}
 \alias{EPIC.package}
-\alias{EPIC.package-package}
 \title{EPIC: a package to Estimate the Proportion of Immune and Cancer cells from
  tumor gene expression data.}
 \description{

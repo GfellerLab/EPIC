@@ -3,3 +3,5 @@
 ^data-raw$
 ^README\.Rmd$
 ^README-.*\.png$
+^doc$
+^Meta$

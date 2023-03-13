@@ -5,7 +5,8 @@
 \alias{melanoma_data}
 \title{Example dataset containing data from lymph nodes from patients with
 metastatic melanoma.}
-\format{This is a list of 3 elements: \describe{
+\format{
+This is a list of 3 elements: \describe{
  \item{$counts}{(matrix of 49902 genes x 4 donors) The TPM normalized counts
    from the four donors. It has been obtained by mapping RNA-seq data to
    \emph{hg19} genome with help of \emph{RSEM}. Ensembl ID were then
@@ -18,7 +19,8 @@ metastatic melanoma.}
  \item{$cellFractions.pred}{(matrix of 4 donors x 8 cell types) The
    proportions of the different cell types, as predicted by EPIC based on
    the reference profiles \code{TRef}.}
-}}
+}
+}
 \source{
 \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE93722}
 }

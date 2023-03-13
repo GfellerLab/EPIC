@@ -4,12 +4,14 @@
 \name{mRNA_cell_default}
 \alias{mRNA_cell_default}
 \title{Values of mRNA / cell for the main cell types.}
-\format{A named numeric vector of the relative amount of mRNA per cell type.
+\format{
+A named numeric vector of the relative amount of mRNA per cell type.
  There are two additional "special cell types": the \emph{otherCells} which
  correspond to the uncharacterized cells present in the sample but without
  any reference profile and the \emph{default} which is the default value used
  for cells with reference profiles but without a value specified in the
- \code{mRNA_cell_default} vector.}
+ \code{mRNA_cell_default} vector.
+}
 \source{
 \url{https://elifesciences.org/articles/26476}
 }

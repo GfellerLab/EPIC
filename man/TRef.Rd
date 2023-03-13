@@ -5,11 +5,13 @@
 \alias{TRef}
 \title{Reference profiles obtained from single cell data of tumor infiltrating
 cells.}
-\format{A list of 3 elements: \describe{ \item{$refProfiles,
+\format{
+A list of 3 elements: \describe{ \item{$refProfiles,
   $refProfiles.var}{Matrices (nGenes x nRefCells) of the gene expression (in
   TPM counts) from the reference cells and the variability of this gene
   expression for each gene and each cell type} \item{$sigGenes}{A list of
-  signature genes used to deconvolve the cell proportions} }}
+  signature genes used to deconvolve the cell proportions} }
+}
 \source{
 \url{http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE72056}
 }

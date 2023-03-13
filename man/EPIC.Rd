@@ -4,9 +4,17 @@
 \alias{EPIC}
 \title{Estimate the proportion of immune and cancer cells.}
 \usage{
-EPIC(bulk, reference = NULL, mRNA_cell = NULL, mRNA_cell_sub = NULL,
-  sigGenes = NULL, scaleExprs = TRUE, withOtherCells = TRUE,
-  constrainedSum = TRUE, rangeBasedOptim = FALSE)
+EPIC(
+  bulk,
+  reference = NULL,
+  mRNA_cell = NULL,
+  mRNA_cell_sub = NULL,
+  sigGenes = NULL,
+  scaleExprs = TRUE,
+  withOtherCells = TRUE,
+  constrainedSum = TRUE,
+  rangeBasedOptim = FALSE
+)
 }
 \arguments{
 \item{bulk}{A matrix (\code{nGenes} x \code{nSamples}) of the genes

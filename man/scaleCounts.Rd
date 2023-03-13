@@ -4,8 +4,7 @@
 \alias{scaleCounts}
 \title{Scaling raw counts from each sample.}
 \usage{
-scaleCounts(counts, sigGenes = NULL, renormGenes = NULL,
-  normFact = NULL)
+scaleCounts(counts, sigGenes = NULL, renormGenes = NULL, normFact = NULL)
 }
 \description{
 Normalizing the sum of counts from each sample to 1e6.
