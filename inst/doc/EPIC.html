@@ -12,7 +12,7 @@
 
 <meta name="author" content="Julien Racle and David Gfeller" />
 
-<meta name="date" content="2023-03-13" />
+<meta name="date" content="2023-07-12" />
 
 <title>EPIC package</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">EPIC package</h1>
 <h4 class="author">Julien Racle and David Gfeller</h4>
-<h4 class="date">2023-03-13</h4>
+<h4 class="date">2023-07-12</h4>
 
 
 
@@ -409,6 +409,26 @@ Gfeller (<a href="mailto:david.gfeller@unil.ch">david.gfeller@unil.ch</a>).</p>
 </div>
 <div id="faq" class="section level2">
 <h2>FAQ</h2>
+<div id="which-proportions-returned-by-epic-should-i-use" class="section level5">
+<h5>Which proportions returned by EPIC should I use?</h5>
+<ul>
+<li><p>EPIC is returning two proportion values: <em>mRNAProportions</em>
+and <em>cellFractions</em>, where the 2nd represents the true proportion
+of cells coming from the different cell types when considering
+differences in mRNA expression between cell types. So in principle, it
+is best to consider these <em>cellFractions</em>.</p>
+<p>However, please note, that when the goal is to benchmark EPIC
+predictions, if the ‘bulk samples’ correspond in fact to in silico
+samples reconstructed for example from single-cell RNA-seq data, then it
+is usually better to compare the ‘true’ proportions against the
+<em>mRNAProportions</em> from EPIC. Indeed, when building such in silico
+samples, the fact that different cell types express different amount of
+mRNA is usually not taken into account. On the other side, if working
+with true bulk samples, then you should compare the true cell
+proportions (measured e.g., by FACS) against the
+<em>cellFractions</em>.</p></li>
+</ul>
+</div>
 <div id="what-do-the-other-cells-represent" class="section level5">
 <h5>What do the “<em>other cells</em>” represent?</h5>
 <ul>
@@ -433,9 +453,9 @@ matrix. Please make sure that your bulk data is in the form of a matrix
 ones).</li>
 </ul>
 </div>
-<div id="what-is-the-meaning-of-the-warning-message-telling-that-some-mrna_cell-values-are-unknown" class="section level5">
-<h5>What is the meaning of the warning message telling that some
-mRNA_cell values are unknown?</h5>
+<div id="is-there-some-caution-to-consider-about-the-cellfractions-and-mrna_cell-values" class="section level5">
+<h5>Is there some caution to consider about the <em>cellFractions</em>
+and <em>mRNA_cell</em> values?</h5>
 <ul>
 <li><p>As described in our manuscript, EPIC first estimates the
 proportion of mRNA per cell type in the bulk and then it uses the fact
@@ -446,11 +466,12 @@ the other). For this normalization we had either measured the amount of
 mRNA per cell or found it in the literature (fig. 1 – fig. supplement 2
 of our paper). However we don’t currently have such values for the
 endothelial cells and CAFs. Therefore for these two cell types, we use
-an average value, which might not reflect their true value and this is
-the reason why we output this message. If you have some values for these
-mRNA/cell abundances, you can also add them into EPIC, with help of the
-parameter “<em>mRNA_cell</em>” or “<em>mRNA_cell_sub</em>” (and that
-would be great to share these values).</p>
+an average value, which might not reflect their true value and this
+could bias a bit the predictions, especially for these cell types. If
+you have some values for these mRNA/cell abundances, you can also add
+them into EPIC, with help of the parameter “<em>mRNA_cell</em>” or
+“<em>mRNA_cell_sub</em>” (and that would be great to share these
+values).</p>
 <p>If the mRNA proportions of these cell types are low, then even if you
 don’t correct the results with their true mRNA/cell abundances, it would
 not really have a big impact on the results. On the other side, if there

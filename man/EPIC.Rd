@@ -114,7 +114,11 @@ the predicted gene expression is outside of this allowed range of values.}
 A list of 3 matrices:\describe{
  \item{\code{mRNAProportions}}{(\code{nSamples} x (\code{nCellTypes+1})) the
    proportion of mRNA coming from all cell types with a ref profile + the
-   uncharacterized other cell.}
+   uncharacterized other cell. Please note that if working with reconstructed
+   in silico bulk samples built for example from single-cell RNA-seq data,
+   then you should compare the 'true' proportions against these
+   'mRNAProportions', while if working with true bulk samples, then you should
+   compare the cell proportions against the 'cellFractions'.}
  \item{\code{cellFractions}}{(\code{nSamples} x (\code{nCellTypes+1})) this
    gives the proportion of cells from each cell type after accounting for
    the mRNA / cell value.}

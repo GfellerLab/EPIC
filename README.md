@@ -85,6 +85,24 @@ Julien Racle (<julien.racle@unil.ch>), and David Gfeller
 
 ## FAQ
 
+##### Which proportions returned by EPIC should I use?
+
+- EPIC is returning two proportion values: *mRNAProportions* and
+  *cellFractions*, where the 2nd represents the true proportion of cells
+  coming from the different cell types when considering differences in
+  mRNA expression between cell types. So in principle, it is best to
+  consider these *cellFractions*.
+
+  However, please note, that when the goal is to benchmark EPIC
+  predictions, if the ‘bulk samples’ correspond in fact to in silico
+  samples reconstructed for example from single-cell RNA-seq data, then
+  it is usually better to compare the ‘true’ proportions against the
+  *mRNAProportions* from EPIC. Indeed, when building such in silico
+  samples, the fact that different cell types express different amount
+  of mRNA is usually not taken into account. On the other side, if
+  working with true bulk samples, then you should compare the true cell
+  proportions (measured e.g., by FACS) against the *cellFractions*.
+
 ##### What do the “*other cells*” represent?
 
 - EPIC predicts the proportions of the various cell types for which we
@@ -104,7 +122,7 @@ Julien Racle (<julien.racle@unil.ch>), and David Gfeller
   matrix (and also your reference gene expression profiles if using
   custom ones).
 
-##### What is the meaning of the warning message telling that some mRNA_cell values are unknown?
+##### Is there some caution to consider about the *cellFractions* and *mRNA_cell* values?
 
 - As described in our manuscript, EPIC first estimates the proportion of
   mRNA per cell type in the bulk and then it uses the fact that some
@@ -115,11 +133,11 @@ Julien Racle (<julien.racle@unil.ch>), and David Gfeller
   mRNA per cell or found it in the literature (fig. 1 – fig. supplement
   2 of our paper). However we don’t currently have such values for the
   endothelial cells and CAFs. Therefore for these two cell types, we use
-  an average value, which might not reflect their true value and this is
-  the reason why we output this message. If you have some values for
-  these mRNA/cell abundances, you can also add them into EPIC, with help
-  of the parameter “*mRNA_cell*” or “*mRNA_cell_sub*” (and that would be
-  great to share these values).
+  an average value, which might not reflect their true value and this
+  could bias a bit the predictions, especially for these cell types. If
+  you have some values for these mRNA/cell abundances, you can also add
+  them into EPIC, with help of the parameter “*mRNA_cell*” or
+  “*mRNA_cell_sub*” (and that would be great to share these values).
 
   If the mRNA proportions of these cell types are low, then even if you
   don’t correct the results with their true mRNA/cell abundances, it

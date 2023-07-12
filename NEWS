@@ -1,3 +1,13 @@
+Version 1.1.7
+------------------------------------------------------------------------
+* Small changes in the documentation (in particular, explaining in the
+  README's FAQ section when to use the *mRNAProportions* or *cellFractions*).
+* Removed the warning message about unknown *mRNA_cell* values that was written
+  nearly in all runs (writing the caution message about this directly in the FAQ
+  section).
+* Corrected a bug when there were duplicated *empty* gene names (i.e., genes
+  named simply as "").
+
 Version 1.1.6
 ------------------------------------------------------------------------
 * Changed person of contact for commercial licenses to Nadette Bulgin.

@@ -112,7 +112,11 @@
 #' @return A list of 3 matrices:\describe{
 #'  \item{\code{mRNAProportions}}{(\code{nSamples} x (\code{nCellTypes+1})) the
 #'    proportion of mRNA coming from all cell types with a ref profile + the
-#'    uncharacterized other cell.}
+#'    uncharacterized other cell. Please note that if working with reconstructed
+#'    in silico bulk samples built for example from single-cell RNA-seq data,
+#'    then you should compare the 'true' proportions against these
+#'    'mRNAProportions', while if working with true bulk samples, then you should
+#'    compare the cell proportions against the 'cellFractions'.}
 #'  \item{\code{cellFractions}}{(\code{nSamples} x (\code{nCellTypes+1})) this
 #'    gives the proportion of cells from each cell type after accounting for
 #'    the mRNA / cell value.}
@@ -392,18 +396,20 @@ EPIC <- function(bulk, reference=NULL, mRNA_cell=NULL, mRNA_cell_sub=NULL,
   if (anyNA(tInds)){
     defaultInd <- match("default", names(mRNA_cell))
     if (is.na(defaultInd)){
-      tStr <- paste(" and no default value is given for this mRNA per cell,",
-                    "so we cannot estimate the cellFractions, only",
-                    "the mRNA proportions")
+      warning("mRNA_cell value unknown for some cell types: ",
+        paste(colnames(mRNAProportions)[is.na(tInds)], collapse=", "),
+        " and no default value is given for the mRNA per cell, so we cannot ",
+        "estimate the cellFractions, only the mRNA proportions")
     } else {
-      tStr <- paste(" - using the default value of", mRNA_cell[defaultInd],
-                    "for these but this might bias the true cell proportions from",
-                    "all cell types.")
+      # warning("mRNA_cell value unknown for some cell types: ",
+      #   paste(colnames(mRNAProportions)[is.na(tInds)], collapse=", "),
+      #   " - using the default value of", mRNA_cell[defaultInd], " for these but ",
+      #   "this might bias the true cell proportions from all cell types.")
+      # Not indicating this warning message as it comes about always if the
+      # user doesn't define additional mRNA_cell values by himself. Instead,
+      # I've indicated this warning in the documentation directly.
+      tInds[is.na(tInds)] <- defaultInd
     }
-    warning("mRNA_cell value unknown for some cell types: ",
-            paste(colnames(mRNAProportions)[is.na(tInds)], collapse=", "),
-            tStr)
-    tInds[is.na(tInds)] <- defaultInd
   }
   cellFractions <- t( t(mRNAProportions) / mRNA_cell[tInds])
   cellFractions <- cellFractions / rowSums(cellFractions, na.rm=FALSE)
@@ -465,15 +471,17 @@ merge_duplicates <- function(mat, warn=TRUE, in_type=NULL){
     if (warn){
       warning("There are ", length(dupl_genes), " duplicated gene names",
         ifelse(!is.null(in_type), paste(" in the", in_type), ""),
-        ". We'll use the median value for each of these cases.")
+        " (e.g., ", paste0("'", dupl_genes[1:(min(5, length(dupl_genes)))],
+        "'", collapse=", "), "). We'll use the median value for ",
+        "each of these cases.")
     }
     mat_dupl <- mat[rownames(mat) %in% dupl_genes,,drop=F]
     mat_dupl_names <- rownames(mat_dupl)
     mat <- mat[!dupl,,drop=F]
     # First put the dupl cases in a separate matrix and keep only the unique
     # gene names in the mat matrix.
-    mat[dupl_genes,] <- t(sapply(dupl_genes, FUN=function(cgene)
-      apply(mat_dupl[mat_dupl_names == cgene,,drop=F], MARGIN=2, FUN=median)))
+    mat[match(dupl_genes, rownames(mat)),] <- t(sapply(dupl_genes, FUN=function(cgene)
+      apply(mat_dupl[mat_dupl_names == cgene,,drop=F], MARGIN=2, FUN=stats::median)))
   }
   return(mat)
 }
